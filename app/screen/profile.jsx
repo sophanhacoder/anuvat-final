@@ -7,9 +7,8 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
-  Alert,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFonts, NunitoSans_400Regular, NunitoSans_600SemiBold, NunitoSans_700Bold } from '@expo-google-fonts/nunito-sans';
@@ -77,6 +76,7 @@ export default function Profile() {
 
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
 
   // Load fonts
   const [fontsLoaded] = useFonts({
@@ -88,14 +88,43 @@ export default function Profile() {
   // ==================== LIFECYCLE HOOKS ====================
   useEffect(() => {
     fetchProfileData();
+    loadProfileImage();
   }, []);
+
+  // Reload profile data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadProfileImage();
+      fetchProfileData();
+    }, [])
+  );
+
+  // ==================== LOAD PROFILE IMAGE ====================
+  const loadProfileImage = async () => {
+    try {
+      const savedImage = await AsyncStorage.getItem("profileImage");
+      if (savedImage) {
+        setProfileImage(savedImage);
+      }
+    } catch (error) {
+      console.log("Error loading profile image:", error);
+    }
+  };
 
   // ==================== API CALLS ====================
   const fetchProfileData = async () => {
     try {
+      // Load saved profile data first
+      const savedName = await AsyncStorage.getItem("userName");
+      
       // Simulate API call
       setTimeout(() => {
-        setProfileData(MOCK_PROFILE_DATA);
+        const mockData = { ...MOCK_PROFILE_DATA };
+        // Override with saved name if exists
+        if (savedName) {
+          mockData.name = savedName;
+        }
+        setProfileData(mockData);
         setLoading(false);
       }, 500);
 
@@ -129,19 +158,17 @@ export default function Profile() {
           <Ionicons name="arrow-back" size={24} color="#1F2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{classroomName}</Text>
-        <TouchableOpacity style={styles.menuButton}>
-          <Ionicons name="ellipsis-vertical" size={24} color="#1F2937" />
-        </TouchableOpacity>
+        <View style={styles.menuButton} />
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Profile Section */}
         <View style={styles.profileSection}>
-          {/* Profile Picture */}
+          {/* Profile Picture - Read Only */}
           <View style={styles.profileImageContainer}>
-            {profileData.profileImage ? (
+            {profileImage ? (
               <Image
-                source={{ uri: profileData.profileImage }}
+                source={{ uri: profileImage }}
                 style={styles.profileImage}
               />
             ) : (
@@ -249,6 +276,7 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     marginBottom: 16,
+    position: 'relative',
   },
   profileImage: {
     width: 120,

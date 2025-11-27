@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { joinClassroom } from "../../api";
@@ -12,7 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 // Components
-import ClassroomCard from "../components/ClassroomCard";
+import ClassroomCard from "../components/cards/ClassroomCard";
 import Header from "../components/common/Header";
 import JoinClassroomCard from "../components/cards/JoinClassroomCard";
 import SuccessModal from "../components/modals/SuccessModal";
@@ -20,21 +21,19 @@ import ConfirmationModal from "../components/modals/ConfirmationModal";
 import ClassroomInfoCard from "../components/cards/ClassroomInfoCard";
 
 // Utils
-import { showJoinClassroomNotification, showLogoutNotification } from "../../utils/notifications";
+import { showJoinClassroomNotification } from "../../utils/notifications";
 import { useTheme } from "../../contexts/ThemeContext";
 import { normalizeClassroomData } from "../../utils/classroomHelpers";
 
 // ==================== MAIN COMPONENT ====================
 export default function Home() {
   const router = useRouter();
-  const { isDarkMode, toggleTheme, theme } = useTheme();
+  const { theme } = useTheme();
   const [classCode, setClassCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [fetchingClassrooms, setFetchingClassrooms] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [joinedClassroom, setJoinedClassroom] = useState(null);
   const [classrooms, setClassrooms] = useState([]);
-  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [removeClassModalVisible, setRemoveClassModalVisible] = useState(false);
   const [classroomToRemove, setClassroomToRemove] = useState(null);
 
@@ -138,22 +137,6 @@ export default function Home() {
     setJoinedClassroom(null);
   };
 
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem("authToken");
-      await AsyncStorage.removeItem("classrooms");
-      
-      // Show logout notification
-      await showLogoutNotification();
-      
-      setLogoutModalVisible(false);
-      router.replace("/screen/login");
-    } catch (error) {
-      console.log("Logout error:", error);
-      Alert.alert("Error", "Failed to logout");
-    }
-  };
-
   const handleRemoveClassroom = async () => {
     if (!classroomToRemove) return;
     
@@ -176,16 +159,14 @@ export default function Home() {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* Header */}
-      <Header
-        appName="Anouwot"
-        onSignOut={() => setLogoutModalVisible(true)}
-        onNotification={() => router.push("/screen/notification")}
-        onThemeToggle={toggleTheme}
-        isDarkMode={isDarkMode}
-        theme={theme}
-      />
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
+      <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
+        {/* Header */}
+        <Header
+          appName="Anouwot"
+          onNotification={() => router.push("/screen/notification")}
+          theme={theme}
+        />
 
       {/* Join Classroom Card */}
       <JoinClassroomCard
@@ -245,20 +226,6 @@ export default function Home() {
         )}
       </SuccessModal>
 
-      {/* Logout Modal */}
-      <ConfirmationModal
-        visible={logoutModalVisible}
-        onClose={() => setLogoutModalVisible(false)}
-        onConfirm={handleLogout}
-        title="Logout"
-        message="Are you sure you want to logout?"
-        confirmText="Logout"
-        cancelText="Cancel"
-        iconName="log-out-outline"
-        iconColor="#DC2626"
-        theme={theme}
-      />
-
       {/* Remove Classroom Modal */}
       <ConfirmationModal
         visible={removeClassModalVisible}
@@ -279,7 +246,28 @@ export default function Home() {
           <ClassroomInfoCard classroom={classroomToRemove} theme={theme} />
         )}
       </ConfirmationModal>
-    </ScrollView>
+      </ScrollView>
+
+      {/* Navigation Bar */}
+      <View style={[styles.navBar, { backgroundColor: theme.cardBackground, borderTopColor: theme.border }]}>
+        <TouchableOpacity
+          style={styles.navButton}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="home" size={24} color="#0068F0" />
+          <Text style={[styles.navText, { color: '#0068F0' }]}>Home</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => router.push("/screen/main-profile")}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="person-outline" size={24} color={theme.textSecondary} />
+          <Text style={[styles.navText, { color: theme.textSecondary }]}>Profile</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
@@ -325,5 +313,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
     opacity: 0.9,
     fontFamily: "NunitoSans_400Regular",
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+  },
+  navButton: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  navText: {
+    fontSize: 12,
+    fontFamily: "NunitoSans_600SemiBold",
   },
 });

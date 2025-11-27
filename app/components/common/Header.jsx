@@ -8,20 +8,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
  */
 export default function Header({ 
   appName = "Anouwot", 
-  onSignOut, 
   onNotification, 
-  onThemeToggle, 
-  isDarkMode, 
   theme 
 }) {
   return (
     <View style={[styles.header, { backgroundColor: theme?.background || "#F5F7FA" }]}>
       <View style={styles.headerLeft}>
-        {onSignOut && (
-          <TouchableOpacity style={styles.signOutButton} onPress={onSignOut}>
-            <Ionicons name="exit-outline" size={20} color="#DC2626" />
-          </TouchableOpacity>
-        )}
         <Text style={[styles.appName, { color: theme?.text || "#1F2937" }]}>
           {appName}
         </Text>
@@ -31,16 +23,6 @@ export default function Header({
         {onNotification && (
           <TouchableOpacity style={styles.iconButton} onPress={onNotification}>
             <Ionicons name="notifications-outline" size={26} color={theme?.text || "#1F2937"} />
-          </TouchableOpacity>
-        )}
-        
-        {onThemeToggle && (
-          <TouchableOpacity style={styles.iconButton} onPress={onThemeToggle}>
-            <Ionicons 
-              name={isDarkMode ? "sunny" : "moon"} 
-              size={24} 
-              color={theme?.text || "#1F2937"} 
-            />
           </TouchableOpacity>
         )}
       </View>

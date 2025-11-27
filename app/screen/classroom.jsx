@@ -19,7 +19,7 @@ import { MOCK_STUDENTS, MOCK_ASSIGNMENTS, MOCK_MATERIALS } from "../../constants
 
 // ==================== CONSTANTS ====================
 const TABS = {
-  STREAM: "stream",
+  MATERIALS: "materials",
   CLASSWORK: "classwork",
   PEOPLE: "people",
 };
@@ -34,7 +34,7 @@ export default function Classroom() {
   const [classroom, setClassroom] = useState(null);
   const [assignments, setAssignments] = useState([]);
   const [materials, setMaterials] = useState([]);
-  const [activeTab, setActiveTab] = useState(TABS.STREAM);
+  const [activeTab, setActiveTab] = useState(TABS.MATERIALS);
   const [leaveClassModalVisible, setLeaveClassModalVisible] = useState(false);
 
   // ==================== LIFECYCLE HOOKS ====================
@@ -215,16 +215,16 @@ export default function Classroom() {
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
-          style={[styles.tab, activeTab === TABS.STREAM && styles.activeTab]}
-          onPress={() => setActiveTab(TABS.STREAM)}
+          style={[styles.tab, activeTab === TABS.MATERIALS && styles.activeTab]}
+          onPress={() => setActiveTab(TABS.MATERIALS)}
         >
           <Text
             style={[
               styles.tabText,
-              activeTab === TABS.STREAM && styles.activeTabText,
+              activeTab === TABS.MATERIALS && styles.activeTabText,
             ]}
           >
-            Stream
+            Materials
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -257,7 +257,7 @@ export default function Classroom() {
 
       {/* Content Area */}
       <ScrollView style={styles.content}>
-        {activeTab === TABS.STREAM && (
+        {activeTab === TABS.MATERIALS && (
           <View>
             {/* Upcoming Section */}
             <View style={styles.card}>

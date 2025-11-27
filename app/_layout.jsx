@@ -33,6 +33,7 @@ export default function RootLayout() {
         <Stack.Screen name="screen/home" />
         <Stack.Screen name="screen/classroom" />
         <Stack.Screen name="screen/profile" />
+        <Stack.Screen name="screen/main-profile" />
         <Stack.Screen name="screen/notification" />
       </Stack>
     </ThemeProvider>
